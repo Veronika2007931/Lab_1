@@ -58,13 +58,14 @@ namespace Laboratorna1
         {
             get { return testMethod; }
             set {
-                if (value != method1 && value != method2 && value != method3)
+                if (value == method1 || value == method2 || value == method3)
                 {
-                    Console.Write("Метод який ви використовуєте не використовується нашою команією");
+                    testMethod = value;
                 }
                 else
                 {
-                    value = testMethod;
+                    
+                    throw new ArgumentException($"Метод '{value}' не використовується нашою компанією");
                 }
             }
         }
