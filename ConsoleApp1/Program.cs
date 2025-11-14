@@ -1,4 +1,5 @@
 ﻿
+using System.IO.Compression;
 using System.Security.Cryptography.X509Certificates;
 
 using System.Text;
@@ -10,7 +11,25 @@ namespace Laboratorna1
     {
         static void Main(string[] args)
         {
-            // Console.WriteLine("Hello, world!");
+            // статичний конструктор
+            Console.WriteLine($"Стандартна тривалість тесту: {Tester.testDurationMinutes} хвилин.");
+            // параметризований конструктор
+            Developer dev = new Developer("Ivan", "Holod", 20, "C#");
+            // Конструктор за замовчуваннням
+            Tester tester = new Tester();
+            Console.WriteLine($"Тестер: {tester.Name} {tester.LastName} ({tester.Age} років).");
+            // приватний конструктор 
+            TeamLead leader1 = TeamLead.GetInstance("Karina", "Dorohiy");
+
+
+            // Створюємо змінну базового типу Employee
+            Employee employee1;
+            // Присвоюємо їй об'єкт Developer
+            employee1 = new Developer("Diana", "Kravchenko", 21, "JavaScript");
+            employee1.dailyTask();
+
+            employee1 = new Tester();
+            employee1.dailyTask();
         }
     }
 
@@ -19,6 +38,11 @@ namespace Laboratorna1
         public string Name;
         public string LastName;
         private int age;
+
+        public virtual void dailyTask()
+        {
+            Console.WriteLine($"{Name}{LastName} виконує сьогоднішню задачу");
+        }
 
         // public Employee()
         // {
@@ -39,7 +63,7 @@ namespace Laboratorna1
             get { return age; }
             set
             {
-                if (value < 18 && value > 50)
+                if (value <= 18 && value >= 50)
                 {
                     age = value;
                 }    
@@ -65,15 +89,58 @@ namespace Laboratorna1
        }
     
 
-    public class Developer : Employee
+    public class Developer : Employee, IDisposable
     {
         protected string ProgrammingLanguage;
+        private bool _isDisposed = false;
+        // імітація некерованого ресурсу(файл)
+        private System.IntPtr _fileHandle;
 
-        public Developer(string name, string lastName, int age, string programmingLanguage):base(name,lastName,age)
+        ~Developer()
+        {
+            Console.WriteLine("Finalizer: Деструктор викликано GC");
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+
+
+        }
+
+          protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed) return;
+            if (disposing)
+            {
+                //  Тут має бути логіка звільнення IDisposable об'єктів, 
+                // які цей клас міг би створювати. У цьому класі їх немає, тому:
+                Console.WriteLine("Dispose: Перевірка керованих об'єктів завершена.");
+            }
+            if (_fileHandle != System.IntPtr.Zero)
+            {
+
+                _fileHandle = System.IntPtr.Zero; // Імітуємо закриття
+            }
+            _isDisposed = true;
+
+        }
+
+        public Developer(string name, string lastName, int age, string programmingLanguage) : base(name, lastName, age)
         {
             this.ProgrammingLanguage = programmingLanguage;
+            _fileHandle = new System.IntPtr(12345);
             Console.WriteLine(" Викликано конструктор з параметрами.");
         }
+
+        public override void dailyTask()
+        {
+            Console.WriteLine($"{Name}: Пише код на {ProgrammingLanguage}");
+        }
+
+     
     }
     public class Tester : Employee
     {
@@ -81,6 +148,24 @@ namespace Laboratorna1
         protected string method2 = "Тестування продуктивності";
         protected string method3 = "Регресійне тестування";
         protected string testMethod;
+
+        public static int testDurationMinutes;
+
+        public Tester() : base("Володимир", "Костюк", 35)
+        {
+            TestMethod = method1;
+
+        }
+        public override void dailyTask()
+        {
+            Console.WriteLine($"{Name}: Виконує {TestMethod} і фіксує баги.");
+        }
+
+        static Tester()
+        {
+            testDurationMinutes = 60;
+            Console.WriteLine("Tester: Викликано статичний конструктор.");
+        }
 
         public string TestMethod
         {
