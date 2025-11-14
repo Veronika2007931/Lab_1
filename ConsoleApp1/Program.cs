@@ -17,9 +17,23 @@ namespace Laboratorna1
     public class Employee
     {
         public string Name;
-        public string lastName;
+        public string LastName;
         private int age;
 
+        // public Employee()
+        // {
+        //     Name = "Veronika";
+        //     lastName = "Niema";
+        //     Age = 18;
+        //     Console.WriteLine("Employee: Викликано конструктор за замовчанням.");
+        // }
+         public Employee(string name, string lastName, int age)
+        {
+            Name = name;
+            LastName = lastName;
+            Age = age;
+            Console.WriteLine("Викликано конструктор з параметрами ");
+        }
         public int Age
         {
             get { return age; }
@@ -41,11 +55,25 @@ namespace Laboratorna1
     public class Meneger : Employee
     {
         protected int Subordinates;
+
+        public Meneger(string name, string lastName, int age) : base(name, lastName, age) 
+    {
+        
+        Subordinates = 0; 
+        Console.WriteLine("Meneger: Викликано конструктор з 3 аргументами.");
     }
+       }
+    
 
     public class Developer : Employee
     {
         protected string ProgrammingLanguage;
+
+        public Developer(string name, string lastName, int age, string programmingLanguage):base(name,lastName,age)
+        {
+            this.ProgrammingLanguage = programmingLanguage;
+            Console.WriteLine(" Викликано конструктор з параметрами.");
+        }
     }
     public class Tester : Employee
     {
@@ -73,5 +101,26 @@ namespace Laboratorna1
     public class TeamLead : Meneger
     {
         protected string TeamTask;
+        // Статичне поле для зберігання єдиного екземпляру для приватного конструктора 
+        private static TeamLead _instance;
+
+        private TeamLead(string name, string lastName) : base(name, lastName, 40)
+        {
+            TeamTask = "Керування розробкою";
+            Console.WriteLine($"TeamLead: Викликано приватний конструктор для {name}.");
+        }
+        
+        public static TeamLead GetInstance(string name, string lastName)
+        {
+            if (_instance == null)
+            {
+                _instance = new TeamLead(name, lastName);
+            }
+            else
+            {
+                Console.WriteLine($"TeamLead: Екземпляр вже існує. Повертаємо {_instance.Name}.");
+            }
+            return _instance;
+        }
     }
 }
