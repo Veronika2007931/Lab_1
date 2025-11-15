@@ -30,8 +30,45 @@ namespace Laboratorna1
 
             employee1 = new Tester();
             employee1.dailyTask();
+
+            long memoryBefore = GC.GetTotalMemory(false);
+            Developer dev1;
+            using (dev1 = new Developer("cофія", "Савицька", 25, "JS"))
+            {
+                Console.WriteLine($" Покоління dev1:{GC.GetGeneration(dev1)}");
+            }
+            // тут ми виклкаємо цей метод щоб він повернув створеного девелопера до черги фіналізції 
+            // але через те що вже в діспоуз спрацював цей метод  GC.SuppressFinalize(this); який видалив
+            // його з черги цей виклик буде проігноровано
+            GC.ReRegisterForFinalize(dev1);
+
+            // Scenary2
+
+            Developer dev2 = new Developer("Sasha", "Stone", 34, "C#");
+            Console.WriteLine($"Покоління dev2: {GC.GetGeneration(dev2)}");
+            createGarbage();
+
+            dev2 = null;
+            // примусовий иклик 
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            long memoryAfter = GC.GetTotalMemory(false);
+            Console.WriteLine($"Пам'ять після GC: {memoryAfter / 1024.0:F2} KB");
+            Console.WriteLine($"Звільнено пам'яті: {(memoryBefore - memoryAfter) / 1024.0:F2} KB");
+
+        }
+
+        static void createGarbage()
+        {
+            for(int i = 0; i<2000; i++)
+            {
+                Developer tempDev = new Developer("Сміттєвий", "Об'єкт", 20, "C#");
+            }
         }
     }
+
+
 
     public class Employee
     {
@@ -56,14 +93,14 @@ namespace Laboratorna1
             Name = name;
             LastName = lastName;
             Age = age;
-            Console.WriteLine("Викликано конструктор з параметрами ");
+            // Console.WriteLine("Викликано конструктор з параметрами ");
         }
         public int Age
         {
             get { return age; }
             set
             {
-                if (value <= 18 && value >= 50)
+                if (value >= 18 && value <= 50)
                 {
                     age = value;
                 }    
@@ -98,7 +135,7 @@ namespace Laboratorna1
 
         ~Developer()
         {
-            Console.WriteLine("Finalizer: Деструктор викликано GC");
+            // Console.WriteLine("Finalizer: Деструктор викликано GC");
             Dispose(false);
         }
 
@@ -119,6 +156,8 @@ namespace Laboratorna1
                 // які цей клас міг би створювати. У цьому класі їх немає, тому:
                 Console.WriteLine("Dispose: Перевірка керованих об'єктів завершена.");
             }
+
+
             if (_fileHandle != System.IntPtr.Zero)
             {
 
@@ -132,7 +171,7 @@ namespace Laboratorna1
         {
             this.ProgrammingLanguage = programmingLanguage;
             _fileHandle = new System.IntPtr(12345);
-            Console.WriteLine(" Викликано конструктор з параметрами.");
+            // Console.WriteLine(" Викликано конструктор з параметрами.");
         }
 
         public override void dailyTask()
@@ -177,7 +216,7 @@ namespace Laboratorna1
                 }
                 else
                 {
-                    
+
                     throw new ArgumentException($"Метод '{value}' не використовується нашою компанією");
                 }
             }
