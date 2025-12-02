@@ -135,7 +135,7 @@ namespace Laboratorna1
 
         ~Developer()
         {
-            // Console.WriteLine("Finalizer: Деструктор викликано GC");
+            Console.WriteLine("Finalizer: Деструктор викликано GC");
             Dispose(false);
         }
 
